@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atelier Folklore — Sistema de Confección</title>
+<style>
+  :root {
+    --bg: #0d0d12;
+    --surface: #15151f;
+    --surface2: #1c1c2a;
+    --surface3: #232336;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --text: #e8e6f0;
+    --muted: #8b89a0;
+    --accent: #c084fc;
+    --accent2: #a855f7;
+    --gold: #f59e0b;
+    --gold2: #d97706;
+    --teal: #2dd4bf;
+    --teal2: #0d9488;
+    --coral: #fb7185;
+    --coral2: #e11d48;
+    --blue: #60a5fa;
+    --green: #4ade80;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background:
+      linear-gradient(160deg, rgba(13,13,18,0.93), rgba(13,13,18,0.96)),
+      url('assets/fondo-sistema.png') center center / cover no-repeat fixed;
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    min-height: 100vh;
+    background: rgba(21, 21, 31, 0.88);
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-icon {
+    font-size: 26px;
+    margin-bottom: 6px;
+  }
+  .logo h1 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .logo p {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .nav {
+    flex: 1;
+    padding: 12px 0;
+  }
+  .nav-section {
+    padding: 8px 16px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 0;
+    transition: all 0.15s;
+    color: var(--muted);
+    border-left: 2px solid transparent;
+    user-select: none;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active {
+    background: rgba(192, 132, 252, 0.1);
+    color: var(--accent);
+    border-left-color: var(--accent);
+  }
+  .nav-item .icon { font-size: 16px; width: 18px; }
+  .nav-item .badge {
+    margin-left: auto;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    min-width: 20px;
+    text-align: center;
+  }
+  .sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* MAIN */
+  .main {
+    margin-left: 220px;
+    flex: 1;
+    padding: 28px 32px;
+    min-height: 100vh;
+  }
+
+  /* SECTIONS */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .page-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .page-header p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  /* CARDS */
+  .card {
+    background: rgba(21, 21, 31, 0.82);
+    backdrop-filter: blur(8px) saturate(130%);
+    -webkit-backdrop-filter: blur(8px) saturate(130%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+  /* STATS */
+  .stat-card {
+    background: rgba(21, 21, 31, 0.82);
+    backdrop-filter: blur(8px) saturate(130%);
+    -webkit-backdrop-filter: blur(8px) saturate(130%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+  }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .stat-value { font-size: 28px; font-weight: 700; color: var(--text); }
+  .stat-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .stat-icon { font-size: 20px; float: right; margin-top: -4px; }
+
+  /* FORM */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .form-row.single { grid-template-columns: 1fr; }
+  .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 6px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: var(--accent);
+  }
+  .form-group select option { background: var(--surface2); }
+  .form-group textarea { resize: vertical; min-height: 70px; }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: var(--accent2);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--accent); transform: translateY(-1px); }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--text);
+  }
+  .btn-outline:hover { background: var(--surface2); border-color: var(--accent); }
+  .btn-danger {
+    background: rgba(251, 113, 133, 0.15);
+    color: var(--coral);
+    border: 1px solid rgba(251, 113, 133, 0.2);
+  }
+  .btn-danger:hover { background: rgba(251, 113, 133, 0.25); }
+  .btn-gold {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--gold);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+  .btn-gold:hover { background: rgba(245, 158, 11, 0.25); }
+  .btn-teal {
+    background: rgba(45, 212, 191, 0.15);
+    color: var(--teal);
+    border: 1px solid rgba(45, 212, 191, 0.2);
+  }
+  .btn-teal:hover { background: rgba(45, 212, 191, 0.25); }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+  /* TAGS / BADGES */
+  .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .tag-purple { background: rgba(192,132,252,0.15); color: var(--accent); }
+  .tag-gold { background: rgba(245,158,11,0.15); color: var(--gold); }
+  .tag-teal { background: rgba(45,212,191,0.15); color: var(--teal); }
+  .tag-coral { background: rgba(251,113,133,0.15); color: var(--coral); }
+  .tag-blue { background: rgba(96,165,250,0.15); color: var(--blue); }
+  .tag-green { background: rgba(74,222,128,0.15); color: var(--green); }
+
+  /* ========== COLA SECTION ========== */
+  .cola-form-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    margin-bottom: 24px;
+  }
+
+  .cola-track {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    padding: 16px 0 12px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border2) transparent;
+  }
+
+  .cola-slot {
+    flex-shrink: 0;
+    position: relative;
+    width: 150px;
+    height: 130px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    text-align: center;
+    transition: all 0.3s;
+    font-size: 12px;
+  }
+  .cola-slot.empty {
+    opacity: 0.3;
+    border-style: dashed;
+  }
+  .cola-slot.front {
+    border-color: var(--teal);
+    background: rgba(45,212,191,0.08);
+    box-shadow: 0 0 16px rgba(45,212,191,0.15);
+  }
+  .cola-slot.rear {
+    border-color: var(--accent);
+    background: rgba(192,132,252,0.08);
+    box-shadow: 0 0 16px rgba(192,132,252,0.15);
+  }
+  .cola-slot.front.rear {
+    border-color: var(--gold);
+    background: rgba(245,158,11,0.08);
+    box-shadow: 0 0 16px rgba(245,158,11,0.15);
+  }
+  .cola-slot-num {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .cola-slot-tag {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+  .cola-slot.front .cola-slot-tag { background: var(--teal); color: #0f2622; }
+  .cola-slot.rear .cola-slot-tag { background: var(--accent); color: #1a0a2e; }
+  .cola-slot.front.rear .cola-slot-tag { background: var(--gold); color: #1a1000; }
+  .cola-slot-name { font-weight: 700; color: var(--text); font-size: 12px; margin-bottom: 3px; }
+  .cola-slot-detail { color: var(--muted); font-size: 11px; line-height: 1.4; }
+
+  .cola-arrow {
+    width: 28px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--border2);
+    font-size: 16px;
+  }
+
+  .cola-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    border: 2px solid;
+  }
+  .legend-dot.teal { border-color: var(--teal); background: rgba(45,212,191,0.2); }
+  .legend-dot.purple { border-color: var(--accent); background: rgba(192,132,252,0.2); }
+  .legend-dot.gold { border-color: var(--gold); background: rgba(245,158,11,0.2); }
+
+  /* PRODUCCION cards */
+  .prod-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .prod-card {
+    background: var(--surface2);
+    border: 1px solid rgba(45,212,191,0.2);
+    border-radius: var(--radius);
+    padding: 14px;
+    text-align: center;
+    font-size: 12px;
+    position: relative;
+  }
+  .prod-card-top {
+    font-size: 22px;
+    margin-bottom: 8px;
+  }
+  .prod-card-name { font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .prod-card-detail { color: var(--muted); font-size: 11px; line-height: 1.5; }
+  .prod-card-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 9px;
+    font-weight: 700;
+    background: rgba(45,212,191,0.15);
+    color: var(--teal);
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+
+  /* HISTORIAL TABLE */
+  .hist-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .hist-table th {
+    text-align: left;
+    padding: 10px 14px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    border-bottom: 1px solid var(--border);
+  }
+  .hist-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: middle;
+  }
+  .hist-table tr:hover td { background: var(--surface2); }
+  .hist-table .hist-id { color: var(--muted); font-size: 11px; }
+
+  /* ROPA FOLKLORICA */
+  .folk-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 18px;
+    margin-top: 8px;
+  }
+  .folk-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .folk-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  .folk-card-img {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 52px;
+    position: relative;
+  }
+  .folk-card-body { padding: 14px; }
+  .folk-card-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .folk-card-region { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .folk-card-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+  .folk-selected-badge {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: var(--accent2);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+
+  /* OTROS TIPOS */
+  .tipo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+  }
+  .tipo-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tipo-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .tipo-card.selected { border-color: var(--gold); background: rgba(245,158,11,0.05); }
+  .tipo-icon { font-size: 32px; margin-bottom: 8px; }
+  .tipo-name { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+  .tipo-desc { font-size: 11px; color: var(--muted); }
+
+  /* ENVIOS */
+  .envio-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .envio-row:last-child { border-bottom: none; }
+  .envio-status-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .envio-info { flex: 1; }
+  .envio-name { font-size: 13px; font-weight: 600; }
+  .envio-dest { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .envio-fecha { font-size: 11px; color: var(--muted); }
+
+  .timeline {
+    position: relative;
+    padding-left: 20px;
+    margin-top: 8px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 5px; top: 6px; bottom: 6px;
+    width: 1px;
+    background: var(--border2);
+  }
+  .timeline-item {
+    position: relative;
+    padding: 0 0 14px 18px;
+    font-size: 12px;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 4px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 2px solid var(--border2);
+  }
+  .timeline-item.done::before { background: var(--teal); border-color: var(--teal); }
+  .timeline-item.active::before { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px rgba(192,132,252,0.5); }
+  .timeline-step { font-weight: 600; color: var(--text); }
+  .timeline-date { color: var(--muted); margin-top: 2px; }
+
+  /* NOTIFICACION */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    z-index: 999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-icon { font-size: 18px; }
+
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+  .section-gap { margin-bottom: 24px; }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-state p { font-size: 13px; }
+
+  .actions-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .input-search {
+    flex: 1;
+    min-width: 200px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 9px 14px;
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+    font-family: inherit;
+  }
+  .input-search:focus { border-color: var(--accent); }
+  .input-search::placeholder { color: var(--muted); }
+
+  /* progress bar */
+  .progress-wrap { background: var(--surface3); border-radius: 10px; height: 6px; overflow: hidden; margin-top: 8px; }
+  .progress-fill { height: 100%; border-radius: 10px; background: var(--accent); }
+
+  .folk-bg-morenada { background: linear-gradient(135deg, #1a0a2e 0%, #2d1458 100%); }
+  .folk-bg-caporal  { background: linear-gradient(135deg, #0d1f0a 0%, #1a3d10 100%); }
+  .folk-bg-tinku    { background: linear-gradient(135deg, #1a0a0a 0%, #3d1010 100%); }
+  .folk-bg-diablada { background: linear-gradient(135deg, #1a0d00 0%, #3d2200 100%); }
+  .folk-bg-kullawada{ background: linear-gradient(135deg, #001a1a 0%, #003d3d 100%); }
+  .folk-bg-caporales{ background: linear-gradient(135deg, #1a1600 0%, #3d3200 100%); }
+</style>
+</head>
+<body>
+<script>
+  // Protección de acceso: si no hay sesión activa, redirige al login
+  if (sessionStorage.getItem('atelier_sesion') !== 'activa') {
+    window.location.href = 'login.html';
+  }
+</script>
+
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">🪡</div>
+    <h1>Atelier Folklore</h1>
+    <p>Sistema de Confección</p>
+  </div>
+  <div class="nav">
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" onclick="showSection('dashboard')">
+      <span class="icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="showSection('cola')">
+      <span class="icon">📋</span> Cola de Pedidos
+      <span class="badge" id="badge-cola">0</span>
+    </div>
+
+    <div class="nav-section">Catálogo</div>
+    <div class="nav-item" onclick="showSection('folklorica')">
+      <span class="icon">🪆</span> Ropa Folklórica
+    </div>
+    <div class="nav-item" onclick="showSection('otros')">
+      <span class="icon">👗</span> Otros Tipos
+    </div>
+
+    <div class="nav-section">Gestión</div>
+    <div class="nav-item" onclick="showSection('historial')">
+      <span class="icon">📜</span> Historial
+    </div>
+    <div class="nav-item" onclick="showSection('envios')">
+      <span class="icon">🚚</span> Envíos
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <div id="sesion-usuario" style="display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:10px;font-size:12px;color:var(--text)">
+      <span style="font-size:15px">👤</span>
+      <span id="usuario-nombre">—</span>
+    </div>
+    <button onclick="cerrarSesion()" style="width:100%;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 10px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:transparent;color:var(--muted);font-size:11px;cursor:pointer;font-family:inherit;transition:all 0.15s">
+      🚪 Cerrar Sesión
+    </button>
+    <div style="margin-top:10px">v2.0 • La Paz, Bolivia</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- ===== DASHBOARD ===== -->
+  <section class="section active" id="s-dashboard">
+    <div class="page-header">
+      <div>
+        <h2>Panel Principal</h2>
+        <p>Bienvenido al sistema de confección Atelier Folklore</p>
+      </div>
+      <button class="btn btn-primary" onclick="showSection('cola')">+ Nuevo Pedido</button>
+    </div>
+
+    <div class="grid-4 section-gap">
+      <div class="stat-card">
+        <div class="stat-icon">📋</div>
+        <div class="stat-label">En Cola</div>
+        <div class="stat-value" id="dash-cola">0</div>
+        <div class="stat-sub">pedidos pendientes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⚙️</div>
+        <div class="stat-label">En Producción</div>
+        <div class="stat-value" id="dash-prod">0</div>
+        <div class="stat-sub">en confección</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <div class="stat-label">Entregados</div>
+        <div class="stat-value" id="dash-hist">0</div>
+        <div class="stat-sub">este mes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🚚</div>
+        <div class="stat-label">En Camino</div>
+        <div class="stat-value" id="dash-env">3</div>
+        <div class="stat-sub">envíos activos</div>
+      </div>
+    </div>
+
+    <div class="grid-2 section-gap">
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Últimos Pedidos</div>
+        <div id="dash-recent">
+          <div class="empty-state">
+            <div class="icon">📋</div>
+            <p>Aún no hay pedidos registrados.<br>¡Agrega el primero desde la cola!</p>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--gold)"></span>Danzas más solicitadas</div>
+        <div id="dash-danzas">
+          <div style="margin-bottom: 14px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+              <span>Morenada</span><span style="color:var(--muted)">38%</span>
+            </div>
+            <div class="progress-wrap"><div class="progress-fill" style="width:38%;background:var(--accent)"></div></div>
+          </div>
+          <div style="margin-bottom: 14px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+              <span>Caporales</span><span style="color:var(--muted)">27%</span>
+            </div>
+            <div class="progress-wrap"><div class="progress-fill" style="width:27%;background:var(--gold)"></div></div>
+          </div>
+          <div style="margin-bottom: 14px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+              <span>Diablada</span><span style="color:var(--muted)">20%</span>
+            </div>
+            <div class="progress-wrap"><div class="progress-fill" style="width:20%;background:var(--coral)"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+              <span>Tinku</span><span style="color:var(--muted)">15%</span>
+            </div>
+            <div class="progress-wrap"><div class="progress-fill" style="width:15%;background:var(--teal)"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== COLA ===== -->
+  <section class="section" id="s-cola">
+    <div class="page-header">
+      <div>
+        <h2>Cola de Pedidos</h2>
+        <p>Gestiona el flujo de producción (FIFO)</p>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="cola-form-wrap">
+      <div class="card-title"><span class="dot"></span>Registrar Nuevo Pedido</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre del Cliente</label>
+          <input type="text" id="f-cliente" placeholder="Ej. María López">
+        </div>
+        <div class="form-group">
+          <label>Tipo de Uso</label>
+          <select id="f-uso">
+            <option value="danza">Danza / Folklórico</option>
+            <option value="personal">Uso Personal</option>
+            <option value="evento">Evento Especial</option>
+            <option value="institucional">Institucional</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row three">
+        <div class="form-group">
+          <label>Prenda</label>
+          <select id="f-prenda">
+            <optgroup label="Folklórico">
+              <option>Pollera Morenada</option>
+              <option>Traje Caporales</option>
+              <option>Vestido Tinku</option>
+              <option>Traje Diablada</option>
+              <option>Traje Kullawada</option>
+              <option>Traje Tinkus</option>
+            </optgroup>
+            <optgroup label="Personal / Evento">
+              <option>Vestido Casual</option>
+              <option>Vestido de Fiesta</option>
+              <option>Traje Formal</option>
+              <option>Camisa</option>
+              <option>Blusa</option>
+              <option>Pollera Regional</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Color Principal</label>
+          <select id="f-color">
+            <option>Rojo</option>
+            <option>Dorado</option>
+            <option>Negro</option>
+            <option>Blanco</option>
+            <option>Azul</option>
+            <option>Verde</option>
+            <option>Multicolor</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Talla</label>
+          <select id="f-talla">
+            <option>XS</option>
+            <option>S</option>
+            <option>M</option>
+            <option>L</option>
+            <option>XL</option>
+            <option>A medida</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Prioridad</label>
+          <select id="f-prioridad">
+            <option value="alta">🔴 Alta — urgente</option>
+            <option value="media">🟡 Media — normal</option>
+            <option value="baja">🟢 Baja — sin apuro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Danza (si aplica)</label>
+          <select id="f-danza">
+            <option value="">— Ninguna —</option>
+            <option>Morenada</option>
+            <option>Caporales</option>
+            <option>Tinku</option>
+            <option>Diablada</option>
+            <option>Kullawada</option>
+            <option>Tobas</option>
+            <option>Llamerada</option>
+            <option>Pujllay</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label>Notas adicionales</label>
+          <textarea id="f-notas" placeholder="Medidas especiales, bordados, accesorios incluidos..."></textarea>
+        </div>
+      </div>
+      <div class="actions-bar" style="margin-bottom:0;">
+        <button class="btn btn-primary" onclick="agregarPedido()">✚ Agregar a la Cola</button>
+        <button class="btn btn-teal" onclick="atenderPedido()">⚙️ Atender Siguiente</button>
+        <button class="btn btn-gold" onclick="entregarPedido()">📦 Marcar como Entregado</button>
+      </div>
+    </div>
+
+    <!-- Cola visual -->
+    <div class="card section-gap">
+      <div class="card-title"><span class="dot" style="background:var(--teal)"></span>Cola de Espera
+        <span style="margin-left:auto;font-size:12px;font-weight:400;color:var(--muted)" id="cola-info">vacía</span>
+      </div>
+      <div class="cola-track" id="cola-track"></div>
+      <div class="cola-legend">
+        <div class="legend-item"><div class="legend-dot teal"></div> Frente (siguiente en atender)</div>
+        <div class="legend-item"><div class="legend-dot purple"></div> Final (último ingresado)</div>
+        <div class="legend-item"><div class="legend-dot gold"></div> Único en cola</div>
+      </div>
+    </div>
+
+    <!-- Produccion -->
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--coral)"></span>En Producción
+        <span style="margin-left:auto;font-size:12px;font-weight:400;color:var(--muted)" id="prod-info">vacío</span>
+      </div>
+      <div class="prod-grid" id="prod-grid">
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="icon">🧵</div>
+          <p>No hay prendas en producción</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== ROPA FOLKLORICA ===== -->
+  <section class="section" id="s-folklorica">
+    <div class="page-header">
+      <div>
+        <h2>Ropa Folklórica</h2>
+        <p>Catálogo de trajes para danzas bolivianas</p>
+      </div>
+      <button class="btn btn-primary" onclick="showSection('cola')">Pedir un Traje</button>
+    </div>
+    <div class="folk-grid">
+      <!-- Cards generadas dinámicamente -->
+    </div>
+  </section>
+
+  <!-- ===== OTROS TIPOS ===== -->
+  <section class="section" id="s-otros">
+    <div class="page-header">
+      <div>
+        <h2>Otros Tipos de Ropa</h2>
+        <p>Confección personal, eventos y uso institucional</p>
+      </div>
+    </div>
+    <div class="tipo-grid" id="tipos-grid"></div>
+  </section>
+
+  <!-- ===== HISTORIAL ===== -->
+  <section class="section" id="s-historial">
+    <div class="page-header">
+      <div>
+        <h2>Historial de Pedidos</h2>
+        <p>Registro completo de pedidos entregados</p>
+      </div>
+    </div>
+    <div class="actions-bar">
+      <input class="input-search" placeholder="🔍 Buscar por cliente, prenda o danza..." oninput="filtrarHistorial(this.value)">
+      <select style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;outline:none;" onchange="filtrarEstado(this.value)">
+        <option value="">Todos</option>
+        <option value="Entregado">Entregado</option>
+        <option value="En envío">En envío</option>
+      </select>
+    </div>
+    <div class="card">
+      <table class="hist-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Cliente</th>
+            <th>Prenda</th>
+            <th>Danza</th>
+            <th>Prioridad</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody id="hist-tbody">
+          <tr><td colspan="7"><div class="empty-state"><div class="icon">📜</div><p>El historial aparecerá aquí cuando entregues pedidos.</p></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== ENVIOS ===== -->
+  <section class="section" id="s-envios">
+    <div class="page-header">
+      <div>
+        <h2>Envíos y Entregas</h2>
+        <p>Seguimiento de despachos</p>
+      </div>
+      <button class="btn btn-primary" onclick="agregarEnvio()">+ Registrar Envío</button>
+    </div>
+
+    <div class="grid-2 section-gap">
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--blue)"></span>Envíos Activos</div>
+        <div id="envios-activos">
+          <!-- envios demo -->
+          <div class="envio-row">
+            <div class="envio-status-dot" style="background:var(--gold)"></div>
+            <div class="envio-info">
+              <div class="envio-name">Traje Morenada — Rosa Quispe</div>
+              <div class="envio-dest">📍 El Alto, La Paz</div>
+            </div>
+            <div>
+              <span class="tag tag-gold">En ruta</span>
+              <div class="envio-fecha">Entrega: 20 jun</div>
+            </div>
+          </div>
+          <div class="envio-row">
+            <div class="envio-status-dot" style="background:var(--teal)"></div>
+            <div class="envio-info">
+              <div class="envio-name">Vestido Fiesta — Carmen Torres</div>
+              <div class="envio-dest">📍 Cochabamba</div>
+            </div>
+            <div>
+              <span class="tag tag-teal">Preparando</span>
+              <div class="envio-fecha">Entrega: 22 jun</div>
+            </div>
+          </div>
+          <div class="envio-row">
+            <div class="envio-status-dot" style="background:var(--accent)"></div>
+            <div class="envio-info">
+              <div class="envio-name">Traje Caporales x4 — Conjunto Estrella</div>
+              <div class="envio-dest">📍 Oruro</div>
+            </div>
+            <div>
+              <span class="tag tag-purple">Despachado</span>
+              <div class="envio-fecha">Entrega: 25 jun</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--accent)"></span>Seguimiento — Traje Morenada</div>
+        <div class="timeline">
+          <div class="timeline-item done">
+            <div class="timeline-step">Pedido confirmado</div>
+            <div class="timeline-date">15 jun — 09:30</div>
+          </div>
+          <div class="timeline-item done">
+            <div class="timeline-step">En confección</div>
+            <div class="timeline-date">15 jun — 14:00</div>
+          </div>
+          <div class="timeline-item done">
+            <div class="timeline-step">Prenda terminada</div>
+            <div class="timeline-date">17 jun — 11:00</div>
+          </div>
+          <div class="timeline-item active">
+            <div class="timeline-step">En camino al cliente</div>
+            <div class="timeline-date">18 jun — en curso</div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-step">Entregado</div>
+            <div class="timeline-date">Estimado: 20 jun</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--green)"></span>Historial de Envíos Completados</div>
+      <table class="hist-table">
+        <thead>
+          <tr><th>#</th><th>Cliente</th><th>Prenda</th><th>Destino</th><th>Fecha Entrega</th><th>Estado</th></tr>
+        </thead>
+        <tbody id="envios-hist">
+          <tr>
+            <td class="hist-id">#001</td>
+            <td>Luisa Mamani</td>
+            <td>Pollera Morenada</td>
+            <td>La Paz</td>
+            <td>10 jun 2026</td>
+            <td><span class="tag tag-green">Entregado</span></td>
+          </tr>
+          <tr>
+            <td class="hist-id">#002</td>
+            <td>Grupo Folclor 2000</td>
+            <td>Trajes Caporales x8</td>
+            <td>Cochabamba</td>
+            <td>12 jun 2026</td>
+            <td><span class="tag tag-green">Entregado</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toast-icon">✅</span>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+// ========= ESTADO =========
+let tamaño = 10;
+let cola = new Array(tamaño).fill(null);
+let front = -1, rear = -1;
+let enProduccion = [];
+let historial = [];
+let contadorId = 1;
+
+// ========= NAVIGATION =========
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('s-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.toLowerCase().includes(id.substring(0,4))) n.classList.add('active');
+  });
+}
+
+// ========= COLA =========
+function agregarPedido() {
+  const cliente = document.getElementById('f-cliente').value.trim();
+  if (!cliente) { toast('⚠️ Ingresa el nombre del cliente', 'warn'); return; }
+
+  if (rear >= tamaño - 1) { toast('❌ La cola está llena (máx. 10 pedidos)', 'error'); return; }
+
+  if (front === -1) front = 0;
+  rear++;
+
+  const pedido = {
+    id: 'P' + String(contadorId++).padStart(3,'0'),
+    cliente,
+    prenda: document.getElementById('f-prenda').value,
+    color: document.getElementById('f-color').value,
+    talla: document.getElementById('f-talla').value,
+    prioridad: document.getElementById('f-prioridad').value,
+    danza: document.getElementById('f-danza').value,
+    uso: document.getElementById('f-uso').value,
+    notas: document.getElementById('f-notas').value,
+    fecha: new Date().toLocaleDateString('es-BO')
+  };
+
+  cola[rear] = pedido;
+  document.getElementById('f-cliente').value = '';
+  document.getElementById('f-notas').value = '';
+
+  renderCola();
+  updateDash();
+  toast(`✅ Pedido de ${cliente} agregado a la cola`);
+}
+
+function atenderPedido() {
+  if (front === -1 || front > rear) { toast('⚠️ La cola está vacía', 'warn'); return; }
+  const p = cola[front];
+  cola[front] = null;
+  front++;
+  enProduccion.push(p);
+  if (front > rear) { front = -1; rear = -1; }
+  renderCola();
+  renderProduccion();
+  updateDash();
+  toast(`⚙️ ${p.prenda} de ${p.cliente} en producción`);
+}
+
+function entregarPedido() {
+  if (enProduccion.length === 0) { toast('⚠️ No hay prendas en producción', 'warn'); return; }
+  const p = enProduccion.shift();
+  p.estado = 'Entregado';
+  p.fechaEntrega = new Date().toLocaleDateString('es-BO');
+  historial.unshift(p);
+  renderProduccion();
+  renderHistorial();
+  updateDash();
+  toast(`📦 Pedido de ${p.cliente} entregado`, 'success');
+}
+
+function renderCola() {
+  const track = document.getElementById('cola-track');
+  track.innerHTML = '';
+
+  // Obtener ocupados
+  const ocupados = [];
+  if (front !== -1) {
+    for (let i = front; i <= rear; i++) if (cola[i]) ocupados.push({ slot: i, data: cola[i] });
+  }
+
+  if (ocupados.length === 0) {
+    track.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px;width:100%">Cola vacía — agrega pedidos para comenzar</div>';
+    document.getElementById('cola-info').textContent = 'vacía';
+    document.getElementById('badge-cola').textContent = '0';
+    updateDash();
+    return;
+  }
+
+  document.getElementById('cola-info').textContent = `${ocupados.length} pedido${ocupados.length>1?'s':''} en espera`;
+  document.getElementById('badge-cola').textContent = ocupados.length;
+
+  ocupados.forEach((item, idx) => {
+    const p = item.data;
+    const isFirst = idx === 0;
+    const isLast = idx === ocupados.length - 1;
+
+    const slot = document.createElement('div');
+    slot.className = 'cola-slot' +
+      (isFirst && isLast ? ' front rear' : isFirst ? ' front' : isLast ? ' rear' : '');
+
+    const priTag = p.prioridad === 'alta' ? '🔴' : p.prioridad === 'media' ? '🟡' : '🟢';
+    const danzaLine = p.danza ? `<br><span style="color:var(--accent);font-size:10px">💃 ${p.danza}</span>` : '';
+
+    slot.innerHTML = `
+      <span class="cola-slot-num">${p.id}</span>
+      ${isFirst && isLast ? '<span class="cola-slot-tag">único</span>' : isFirst ? '<span class="cola-slot-tag">frente</span>' : isLast ? '<span class="cola-slot-tag">final</span>' : ''}
+      <div class="cola-slot-name">${p.cliente}</div>
+      <div class="cola-slot-detail">${p.prenda}<br>${p.color} · ${p.talla}${danzaLine}</div>
+      <div style="margin-top:4px">${priTag}</div>
+    `;
+
+    track.appendChild(slot);
+
+    if (idx < ocupados.length - 1) {
+      const arrow = document.createElement('div');
+      arrow.className = 'cola-arrow';
+      arrow.innerHTML = '›';
+      track.appendChild(arrow);
+    }
+  });
+
+  updateDash();
+}
+
+function renderProduccion() {
+  const grid = document.getElementById('prod-grid');
+  const info = document.getElementById('prod-info');
+
+  if (enProduccion.length === 0) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">🧵</div><p>No hay prendas en producción</p></div>';
+    info.textContent = 'vacío';
+    return;
+  }
+
+  info.textContent = `${enProduccion.length} prenda${enProduccion.length>1?'s':''}`;
+  grid.innerHTML = '';
+
+  enProduccion.forEach(p => {
+    const icon = getPrendaIcon(p.prenda);
+    const card = document.createElement('div');
+    card.className = 'prod-card';
+    card.innerHTML = `
+      <div class="prod-card-badge">producción</div>
+      <div class="prod-card-top">${icon}</div>
+      <div class="prod-card-name">${p.cliente}</div>
+      <div class="prod-card-detail">${p.prenda}<br>${p.color} · ${p.talla}${p.danza ? '<br>💃 '+p.danza : ''}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function getPrendaIcon(prenda) {
+  if (!prenda) return '👗';
+  const p = prenda.toLowerCase();
+  if (p.includes('morenada')) return '🪆';
+  if (p.includes('caporal')) return '🎖️';
+  if (p.includes('diablada')) return '😈';
+  if (p.includes('tinku')) return '⚔️';
+  if (p.includes('kullawada')) return '🦙';
+  if (p.includes('pollera')) return '👘';
+  if (p.includes('vestido')) return '👗';
+  if (p.includes('traje') || p.includes('formal')) return '🤵';
+  if (p.includes('camisa')) return '👔';
+  if (p.includes('blusa')) return '👚';
+  return '🧵';
+}
+
+// ========= HISTORIAL =========
+function renderHistorial(filtro = '') {
+  const tbody = document.getElementById('hist-tbody');
+  const datos = filtro
+    ? historial.filter(p => (p.cliente+p.prenda+p.danza).toLowerCase().includes(filtro.toLowerCase()))
+    : historial;
+
+  if (datos.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon">📜</div><p>El historial aparecerá aquí cuando entregues pedidos.</p></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = datos.map(p => `
+    <tr>
+      <td class="hist-id">${p.id}</td>
+      <td>${p.cliente}</td>
+      <td>${p.prenda}</td>
+      <td>${p.danza || '<span style="color:var(--muted)">—</span>'}</td>
+      <td>${p.prioridad === 'alta' ? '<span class="tag tag-coral">Alta</span>' : p.prioridad === 'media' ? '<span class="tag tag-gold">Media</span>' : '<span class="tag tag-green">Baja</span>'}</td>
+      <td style="color:var(--muted)">${p.fechaEntrega}</td>
+      <td><span class="tag tag-teal">Entregado</span></td>
+    </tr>
+  `).join('');
+}
+
+function filtrarHistorial(v) { renderHistorial(v); }
+function filtrarEstado(v) { renderHistorial(v); }
+
+// ========= DASHBOARD =========
+function updateDash() {
+  const colaCount = (front === -1) ? 0 : (rear - front + 1);
+  document.getElementById('dash-cola').textContent = colaCount;
+  document.getElementById('dash-prod').textContent = enProduccion.length;
+  document.getElementById('dash-hist').textContent = historial.length;
+
+  // recent
+  const rec = document.getElementById('dash-recent');
+  const todos = [...(front===-1?[]:[...Array(rear-front+1)].map((_,i)=>cola[front+i]).filter(Boolean)), ...enProduccion];
+  if (todos.length === 0) {
+    rec.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>Aún no hay pedidos registrados.</p></div>';
+    return;
+  }
+  rec.innerHTML = todos.slice(0,4).map(p=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:22px">${getPrendaIcon(p.prenda)}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600">${p.cliente}</div>
+        <div style="font-size:11px;color:var(--muted)">${p.prenda} · ${p.color}</div>
+      </div>
+      <span class="tag ${p.prioridad==='alta'?'tag-coral':p.prioridad==='media'?'tag-gold':'tag-green'}">${p.prioridad}</span>
+    </div>
+  `).join('');
+}
+
+// ========= FOLKLORICA =========
+const folkData = [
+  { nombre:'Morenada', region:'Oruro / La Paz', emoji:'🪆', desc:'Traje pesado y ornamentado, con bordados en lentejuelas. Símbolo de Bolivia.', tags:['tag-purple','tag-gold'], tagTxts:['Carnaval','Preboste'], bg:'folk-bg-morenada' },
+  { nombre:'Caporales', region:'La Paz', emoji:'🎖️', desc:'Traje con cascabeles, botas altas y sombrero. Danza de gran energía.', tags:['tag-teal','tag-green'], tagTxts:['Aymara','Energético'], bg:'folk-bg-caporal' },
+  { nombre:'Tinku', region:'Potosí / Norte Potosí', emoji:'⚔️', desc:'Traje ritual indígena con colores vivos, casco y fajas andinas.', tags:['tag-coral','tag-blue'], tagTxts:['Ritual','Ancestral'], bg:'folk-bg-tinku' },
+  { nombre:'Diablada', region:'Oruro', emoji:'😈', desc:'Máscara elaborada con cuernos, traje con serpientes. Fraternidad más famosa de Oruro.', tags:['tag-gold','tag-coral'], tagTxts:['Oruro','UNESCO'], bg:'folk-bg-diablada' },
+  { nombre:'Kullawada', region:'La Paz', emoji:'🦙', desc:'Traje de tejedores con rueca, pollera amplia y sombrero de plumas.', tags:['tag-teal','tag-purple'], tagTxts:['Tejedor','Aymara'], bg:'folk-bg-kullawada' },
+  { nombre:'Llamerada', region:'Altiplano', emoji:'🐑', desc:'Pastores con traje de lana natural y hondas. Danza del altiplano boliviano.', tags:['tag-green','tag-gold'], tagTxts:['Altiplano','Pastores'], bg:'folk-bg-caporales' },
+  { nombre:'Tobas', region:'Amazonia / Beni', emoji:'🪶', desc:'Traje con plumas, taparrabo y pintura corporal. Danza amazónica.', tags:['tag-blue','tag-green'], tagTxts:['Amazónico','Plumas'], bg:'folk-bg-tinku' },
+  { nombre:'Pujllay', region:'Tarabuco, Chuquisaca', emoji:'🌺', desc:'Traje multicolor del Carnaval de Tarabuco. Patrimonio cultural.', tags:['tag-coral','tag-purple'], tagTxts:['Tarabuco','Festivo'], bg:'folk-bg-morenada' },
+];
+
+function renderFolklorica() {
+  const grid = document.querySelector('.folk-grid');
+  grid.innerHTML = folkData.map((f,i) => `
+    <div class="folk-card" onclick="pedirFolklorico('${f.nombre}')">
+      <div class="folk-card-img ${f.bg}">
+        <span>${f.emoji}</span>
+      </div>
+      <div class="folk-card-body">
+        <div class="folk-card-name">${f.nombre}</div>
+        <div class="folk-card-region">📍 ${f.region}</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">${f.desc}</p>
+        <div class="folk-card-tags">
+          ${f.tags.map((t,j)=>`<span class="tag ${t}">${f.tagTxts[j]}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function pedirFolklorico(nombre) {
+  showSection('cola');
+  document.getElementById('f-danza').value = nombre;
+  document.getElementById('f-uso').value = 'danza';
+  // set prenda
+  const prendaSelect = document.getElementById('f-prenda');
+  for (let o of prendaSelect.options) {
+    if (o.text.toLowerCase().includes(nombre.toLowerCase())) { prendaSelect.value = o.value; break; }
+  }
+  toast(`💃 Seleccionado: ${nombre} — completa el formulario`);
+}
+
+// ========= OTROS TIPOS =========
+const tiposData = [
+  { icon:'👗', nombre:'Vestido de Fiesta', desc:'Para bodas, quinceañeras y eventos formales', color:'accent' },
+  { icon:'👔', nombre:'Traje Formal', desc:'Trajes de caballero a medida', color:'blue' },
+  { icon:'👘', nombre:'Pollera Regional', desc:'Polleras típicas para uso cotidiano', color:'gold' },
+  { icon:'👚', nombre:'Blusa / Camisas', desc:'Prendas superiores casual y formal', color:'teal' },
+  { icon:'🥻', nombre:'Vestido Casual', desc:'Prendas cómodas para el diario', color:'green' },
+  { icon:'🧥', nombre:'Abrigo / Chaleco', desc:'Prendas de abrigo para el altiplano', color:'coral' },
+  { icon:'👑', nombre:'Traje Institucional', desc:'Uniformes y prendas corporativas', color:'purple' },
+  { icon:'🤵', nombre:'Traje de Novio', desc:'Confección especial para el gran día', color:'accent' },
+];
+
+function renderTipos() {
+  const grid = document.getElementById('tipos-grid');
+  grid.innerHTML = tiposData.map((t,i) => `
+    <div class="tipo-card" onclick="pedirTipo('${t.nombre}')">
+      <div class="tipo-icon">${t.icon}</div>
+      <div class="tipo-name">${t.nombre}</div>
+      <div class="tipo-desc">${t.desc}</div>
+    </div>
+  `).join('');
+}
+
+function pedirTipo(nombre) {
+  showSection('cola');
+  document.getElementById('f-uso').value = 'personal';
+  const prendaSelect = document.getElementById('f-prenda');
+  for (let o of prendaSelect.options) {
+    if (o.text.toLowerCase().includes(nombre.substring(0,5).toLowerCase())) { prendaSelect.value = o.value; break; }
+  }
+  toast(`👗 Tipo seleccionado: ${nombre} — completa el formulario`);
+}
+
+// ========= ENVIOS =========
+function agregarEnvio() {
+  if (historial.length === 0) { toast('⚠️ Primero entrega algún pedido', 'warn'); return; }
+  toast('🚚 Envío registrado (en desarrollo: conectar con historial)');
+}
+
+// ========= TOAST =========
+function toast(msg, type = 'ok') {
+  const t = document.getElementById('toast');
+  const icon = { ok:'✅', warn:'⚠️', error:'❌', success:'🎉' }[type] || '✅';
+  document.getElementById('toast-icon').textContent = icon;
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ========= SESION =========
+function cerrarSesion() {
+  sessionStorage.removeItem('atelier_sesion');
+  sessionStorage.removeItem('atelier_usuario');
+  window.location.href = 'login.html';
+}
+
+function mostrarUsuario() {
+  const nombre = sessionStorage.getItem('atelier_usuario') || 'invitado';
+  const el = document.getElementById('usuario-nombre');
+  if (el) el.textContent = nombre;
+}
+
+// ========= INIT =========
+mostrarUsuario();
+renderCola();
+renderProduccion();
+renderFolklorica();
+renderTipos();
+updateDash();
+</script>
+</body>
+</html>
